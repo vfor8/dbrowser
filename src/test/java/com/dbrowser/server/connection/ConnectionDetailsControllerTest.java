@@ -1,5 +1,6 @@
 package com.dbrowser.server.connection;
 
+import com.dbrowser.server.error.DBrowserException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
@@ -8,18 +9,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -112,18 +117,6 @@ class ConnectionDetailsControllerTest {
     }
 
     @Test
-    void whenPostEmptyName_returnBadRequest() throws Exception {
-        String emptyConnectionName = "";
-        ConnectionDetailsDto requestBody = new ConnectionDetailsDto(null, emptyConnectionName, "localhost", 3306, "ourDb", "tstuser", "scrt");
-
-        mockMvc.perform(post(API_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestBody)))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void whenPut_updateConnection() throws Exception {
         ConnectionDetailsDto requestBody = new ConnectionDetailsDto(1L, "db_connection", "localhost", 3306, "ourDb", "tstuser", "scrt");
 
@@ -147,15 +140,6 @@ class ConnectionDetailsControllerTest {
     }
 
     @Test
-    void whenPutEmptyBody_returnBadRequest() throws Exception {
-        String emptyRequestBody = "";
-        mockMvc.perform(put(API_PATH + "/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(emptyRequestBody))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void whenDelete_removeConnection() throws Exception {
         mockMvc.perform(delete(API_PATH + "/1"))
                 .andExpect(status().isOk());
@@ -163,4 +147,40 @@ class ConnectionDetailsControllerTest {
         verify(service).deleteConnection(1L);
     }
 
+    // Error handling
+
+    @Test
+    void whenGetConnectionThrowsDBrowserException_returnErrorStatusCode() throws Exception {
+        doThrow(new DBrowserException("resource not found", HttpStatus.NOT_FOUND))
+                .when(service).getConnection(eq(1L));
+
+        MvcResult mvcResult = mockMvc.perform(get(API_PATH + "/1"))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        String responseContent = mvcResult.getResponse().getContentAsString();
+
+        assertThat(responseContent, equalTo("Status: 404 NOT_FOUND | Reason: resource not found"));
+    }
+
+    @Test
+    void whenPostEmptyName_returnBadRequest() throws Exception {
+        String emptyConnectionName = "";
+        ConnectionDetailsDto requestBody = new ConnectionDetailsDto(null, emptyConnectionName, "localhost", 3306, "ourDb", "tstuser", "scrt");
+
+        mockMvc.perform(post(API_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void whenPutEmptyBody_returnBadRequest() throws Exception {
+        String emptyRequestBody = "";
+        mockMvc.perform(put(API_PATH + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(emptyRequestBody))
+                .andExpect(status().isBadRequest());
+    }
 }
