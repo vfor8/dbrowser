@@ -90,8 +90,6 @@ class ConnectionDetailsControllerTest {
         mockMvc.perform(get(API_PATH + "/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-
-                // 1st connection
                 .andExpect(jsonPath("id", is(conn.getId().intValue())))
                 .andExpect(jsonPath("name", is(conn.getName())))
                 .andExpect(jsonPath("hostname", is(conn.getHostname())))
@@ -152,7 +150,7 @@ class ConnectionDetailsControllerTest {
     @Test
     void whenGetConnectionThrowsDBrowserException_returnErrorStatusCode() throws Exception {
         doThrow(new DBrowserException("resource not found", HttpStatus.NOT_FOUND))
-                .when(service).getConnection(eq(1L));
+                .when(service).getConnection(1L);
 
         MvcResult mvcResult = mockMvc.perform(get(API_PATH + "/1"))
                 .andExpect(status().isNotFound())

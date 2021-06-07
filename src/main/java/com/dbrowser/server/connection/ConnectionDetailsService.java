@@ -33,7 +33,6 @@ class ConnectionDetailsService {
     @Transactional
     ConnectionDetails createConnection(ConnectionDetails connection) {
         Objects.requireNonNull(connection);
-
         return repository.save(connection);
     }
 
