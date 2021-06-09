@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Service
-class ConnectionDetailsService {
+public class ConnectionDetailsService {
 
     private final ConnectionDetailsRepository repository;
 
@@ -25,7 +25,7 @@ class ConnectionDetailsService {
         return repository.findAll();
     }
 
-    ConnectionDetails getConnection(long id) {
+    public ConnectionDetails getConnection(long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new DBrowserException("Connection with id " + id + " not found!", HttpStatus.NOT_FOUND));
     }

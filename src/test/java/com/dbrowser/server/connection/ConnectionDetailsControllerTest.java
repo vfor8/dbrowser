@@ -36,11 +36,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(controllers = ConnectionDetailsController.class)
 @AutoConfigureMockMvc
 class ConnectionDetailsControllerTest {
 
-    public static final String API_PATH = "/connection-details";
+    public static final String API_PATH = "/connections";
+
     @Autowired
     private MockMvc mockMvc;
 
