@@ -45,12 +45,7 @@ class ColumnService {
         ConnectionDetails connectionDetails = connectionService.getConnection(connectionId);
         JdbcTemplate jdbcTemplate = jdbcTemplateProvider.getJdbcTemplate(connectionDetails);
 
-        return getColumns(jdbcTemplate, connectionDetails.getDatabaseName(), tableName);
-    }
-
-    private Collection<Column> getColumns(JdbcTemplate jdbcTemplate, String databaseName, String tableName) {
-
-        return jdbcTemplate.query(SELECT_COLUMNS, ROW_MAPPER, databaseName, tableName);
+        return jdbcTemplate.query(SELECT_COLUMNS, ROW_MAPPER, connectionDetails.getDatabaseName(), tableName);
     }
 
     Column getOneColumn(long connectionId, String tableName, String columnName) {
