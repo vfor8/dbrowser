@@ -1,0 +1,283 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost
+paths:
+  /connections/{id}:
+    get:
+      summary: Get a connection by id
+      operationId: getConnection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ConnectionDetailsDto'
+    put:
+      summary: Update a connection
+      operationId: updateConnection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectionDetailsDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+    delete:
+      summary: Remove a connection
+      operationId: deleteConnection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+  /connections:
+    get:
+      summary: Get all connections
+      operationId: getAllConnections
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConnectionDetailsDto'
+    post:
+      summary: Create a new connection using the provided details
+      operationId: createConnection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectionDetailsDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ConnectionDetailsDto'
+  /connections/{connectionId}/tables:
+    get:
+      summary: Get all tables in a database using stored connection details
+      operationId: getAllTables
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
+  /connections/{connectionId}/tables/{tableName}:
+    get:
+      summary: Get a table by name using stored connection details
+      operationId: getOneTable
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tableName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Table'
+  /connections/{connectionId}/tables/{tableName}/data-preview:
+    get:
+      summary: Get a table content preview using stored connection details
+      operationId: getTableData
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tableName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TableContent'
+  /connections/{connectionId}/tables/{tableName}/columns:
+    get:
+      summary: Get table columns using stored connection details
+      operationId: getColumns
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tableName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Column'
+  /connections/{connectionId}/tables/{tableName}/columns/{columnName}:
+    get:
+      summary: Get a table column by name using stored connection details
+      operationId: getOneColumn
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tableName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: columnName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Column'
+components:
+  schemas:
+    ConnectionDetailsDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          maxLength: 150
+          minLength: 1
+          type: string
+        hostname:
+          maxLength: 300
+          minLength: 1
+          type: string
+        port:
+          type: integer
+          format: int32
+        databaseName:
+          maxLength: 250
+          minLength: 1
+          type: string
+        username:
+          maxLength: 30
+          minLength: 1
+          type: string
+        password:
+          maxLength: 40
+          minLength: 0
+          type: string
+    Table:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        comment:
+          type: string
+        engine:
+          type: string
+        collation:
+          type: string
+    TableContent:
+      type: object
+      properties:
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+    Column:
+      type: object
+      properties:
+        name:
+          type: string
+        datatype:
+          type: string
+        indexType:
+          type: string
+          enum:
+            - PRIMARY
+            - UNIQUE
+            - NON_UNIQUE
+        defaultValue:
+          type: string
+        nullable:
+          type: boolean
+        charset:
+          type: string
+        collation:
+          type: string
+        comment:
+          type: string
+        additionalInfo:
+          type: string

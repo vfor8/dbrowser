@@ -1,5 +1,7 @@
 package com.dbrowser.server.connection;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +32,7 @@ public class ConnectionDetailsController {
         this.service = service;
     }
 
+    @Operation(summary = "Get all connections")
     @GetMapping
     public ResponseEntity<Collection<ConnectionDetailsDto>> getAllConnections() {
         Collection<ConnectionDetailsDto> allConnections = service.getAllConnections().stream()
@@ -39,12 +42,14 @@ public class ConnectionDetailsController {
         return ResponseEntity.ok(allConnections);
     }
 
+    @Operation(summary = "Get a connection by id")
     @GetMapping("/{id}")
     public ResponseEntity<ConnectionDetailsDto> getConnection(@PathVariable long id) {
         ConnectionDetailsDto connection = mapper.toDto(service.getConnection(id));
         return ResponseEntity.ok(connection);
     }
 
+    @Operation(summary = "Create a new connection using the provided details")
     @PostMapping
     public ResponseEntity<ConnectionDetailsDto> createConnection(@RequestBody @Valid ConnectionDetailsDto connection) {
 
@@ -60,12 +65,14 @@ public class ConnectionDetailsController {
                 .body(dto);
     }
 
+    @Operation(summary = "Update a connection")
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateConnection(@PathVariable long id, @RequestBody @Valid ConnectionDetailsDto connection) {
         service.updateConnection(id, mapper.toEntity(connection));
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Remove a connection")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteConnection(@PathVariable long id) {
         service.deleteConnection(id);

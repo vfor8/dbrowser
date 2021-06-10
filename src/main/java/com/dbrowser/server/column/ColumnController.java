@@ -1,5 +1,7 @@
 package com.dbrowser.server.column;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ public class ColumnController {
         this.columnService = columnService;
     }
 
+    @Operation(summary = "Get table columns using stored connection details")
     @GetMapping
     public ResponseEntity<Collection<Column>> getColumns(@PathVariable(name = "connectionId") long connectionId,
             @PathVariable(name = "tableName") String tableName) {
@@ -29,6 +32,7 @@ public class ColumnController {
         return ResponseEntity.ok(columns);
     }
 
+    @Operation(summary = "Get a table column by name using stored connection details")
     @GetMapping("/{columnName}")
     public ResponseEntity<Column> getOneColumn(@PathVariable(name = "connectionId") long connectionId,
             @PathVariable(name = "tableName") String tableName, @PathVariable(name = "columnName") String columnName) {

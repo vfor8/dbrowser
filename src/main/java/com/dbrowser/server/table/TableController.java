@@ -1,5 +1,7 @@
 package com.dbrowser.server.table;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ public class TableController {
         this.tableService = tableService;
     }
 
+    @Operation(summary = "Get all tables in a database using stored connection details")
     @GetMapping
     public ResponseEntity<Collection<Table>> getAllTables(@PathVariable long connectionId) {
 
@@ -28,6 +31,7 @@ public class TableController {
         return ResponseEntity.ok(tables);
     }
 
+    @Operation(summary = "Get a table by name using stored connection details")
     @GetMapping("/{tableName}")
     public ResponseEntity<Table> getOneTable(@PathVariable(name = "connectionId") long connectionId,
             @PathVariable(name = "tableName") String tableName) {

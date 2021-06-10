@@ -1,5 +1,7 @@
 package com.dbrowser.server.tablecontent;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ public class TableContentController {
         this.tableContentService = tableContentService;
     }
 
+    @Operation(summary = "Get a table content preview using stored connection details")
     @GetMapping
     public ResponseEntity<TableContent> getTableData(@PathVariable(name = "connectionId") long connectionId,
             @PathVariable(name = "tableName") String tableName) {
