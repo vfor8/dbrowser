@@ -13,9 +13,13 @@ java -Dspring.datasource.url=jdbc:mysql://{DB_HOSTNAME}:{DB_PORT}/{DB_NAME} -Dsp
 Replace the placeholders with the correct values:
 
 {DB_HOSTNAME}: hostname where the MySQL database is running
+
 {DB_PORT}: MySQL port
+
 {DB_NAME}: database containing the `connection_details` table (see bellow)
+
 {DB_USERNAME}: username to use to connect to the database
+
 {DB_PASSWORD}: user's password
 
 
