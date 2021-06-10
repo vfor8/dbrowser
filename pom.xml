@@ -12,7 +12,7 @@
 
     <groupId>com.dbrowser</groupId>
     <artifactId>dbrowser-server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>DBrowser - REST service</name>
     <description>DBrowser - database browser</description>
 
