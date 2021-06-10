@@ -2,7 +2,7 @@ package com.dbrowser.server.column;
 
 import com.dbrowser.server.connection.ConnectionDetails;
 import com.dbrowser.server.connection.ConnectionDetailsService;
-import com.dbrowser.server.db.DatasourceProvider;
+import com.dbrowser.server.db.JdbcTemplateProvider;
 import com.dbrowser.server.error.DBrowserException;
 
 import org.slf4j.Logger;
@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-
-import javax.sql.DataSource;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,45 +30,38 @@ class ColumnService {
     private static final String SELECT_ONE_COLUMN =
             SELECT_COLUMNS + " AND COLUMN_NAME = ?";
 
-
     private static final RowMapper<Column> ROW_MAPPER = new ColumnRowMapper();
 
     private final ConnectionDetailsService connectionService;
-    private final DatasourceProvider datasourceProvider;
+    private final JdbcTemplateProvider jdbcTemplateProvider;
 
     @Autowired
-    ColumnService(ConnectionDetailsService connectionService, DatasourceProvider datasourceProvider) {
+    ColumnService(ConnectionDetailsService connectionService, JdbcTemplateProvider jdbcTemplateProvider) {
         this.connectionService = connectionService;
-        this.datasourceProvider = datasourceProvider;
+        this.jdbcTemplateProvider = jdbcTemplateProvider;
     }
 
     Collection<Column> getColumns(long connectionId, String tableName) {
         ConnectionDetails connectionDetails = connectionService.getConnection(connectionId);
+        JdbcTemplate jdbcTemplate = jdbcTemplateProvider.getJdbcTemplate(connectionDetails);
 
-        DataSource ds = datasourceProvider.getDatasource(connectionDetails);
-
-        return getColumns(ds, connectionDetails.getDatabaseName(), tableName);
+        return getColumns(jdbcTemplate, connectionDetails.getDatabaseName(), tableName);
     }
 
-    private Collection<Column> getColumns(DataSource dataSource, String databaseName, String tableName) {
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    private Collection<Column> getColumns(JdbcTemplate jdbcTemplate, String databaseName, String tableName) {
 
         return jdbcTemplate.query(SELECT_COLUMNS, ROW_MAPPER, databaseName, tableName);
     }
 
     Column getOneColumn(long connectionId, String tableName, String columnName) {
         ConnectionDetails connectionDetails = connectionService.getConnection(connectionId);
+        JdbcTemplate jdbcTemplate = jdbcTemplateProvider.getJdbcTemplate(connectionDetails);
 
-        DataSource ds = datasourceProvider.getDatasource(connectionDetails);
-
-        return getOneColumn(ds, connectionDetails.getDatabaseName(), tableName, columnName).stream().findAny()
+        return getOneColumn(jdbcTemplate, connectionDetails.getDatabaseName(), tableName, columnName).stream().findAny()
                 .orElseThrow(() -> new DBrowserException("Column " + columnName + " in table " + tableName + " not found", HttpStatus.NOT_FOUND));
     }
 
-    private Optional<Column> getOneColumn(DataSource dataSource, String databaseName, String tableName, String columnName) {
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    private Optional<Column> getOneColumn(JdbcTemplate jdbcTemplate, String databaseName, String tableName, String columnName) {
 
         return jdbcTemplate.query(SELECT_ONE_COLUMN, ROW_MAPPER, databaseName, tableName, columnName).stream().findAny();
     }
@@ -95,7 +86,7 @@ class ColumnService {
         }
 
         private Boolean yesNoToBoolean(String str) {
-            if("YES".equalsIgnoreCase(str)) {
+            if ("YES".equalsIgnoreCase(str)) {
                 return Boolean.TRUE;
             } else if ("NO".equalsIgnoreCase(str)) {
                 return Boolean.FALSE;
@@ -110,6 +101,5 @@ class ColumnService {
         }
 
     }
-
 
 }

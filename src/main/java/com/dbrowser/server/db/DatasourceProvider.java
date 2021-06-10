@@ -16,7 +16,7 @@ public class DatasourceProvider {
         return DataSourceBuilder.create()
                 .driverClassName("com.mysql.cj.jdbc.Driver")
                 .type(SimpleDriverDataSource.class)
-                .url("jdbc:mysql://" + connectionDetails.getHostname() + ":" + connectionDetails.getPort())
+                .url("jdbc:mysql://" + connectionDetails.getHostname() + ":" + connectionDetails.getPort() + "/" + connectionDetails.getDatabaseName())
                 .username(connectionDetails.getUsername())
                 .password(connectionDetails.getPassword())
                 .build();
